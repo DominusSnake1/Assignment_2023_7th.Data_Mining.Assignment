@@ -2,8 +2,12 @@ import pandas as pd
 
 
 class Dataset(pd.DataFrame):
-    def __init__(self):
-        super().__init__(pd.read_excel('Data/movies.xlsx'))
+    def __init__(self, dataframe='Data/movies.xlsx'):
+        super().__init__(pd.read_excel(dataframe))
+
+    def createDEMO(self, X):
+        DEMO = self.sample(X).copy()
+        DEMO.to_excel(f'Data/Demos/DEMO_{X}.xlsx', index=False)
 
     def showDataframe(self):
         print(self)
@@ -25,6 +29,10 @@ class Dataset(pd.DataFrame):
 
     def showColumns(self, *columns):
         print(self[list(columns)])
+
+    def dropColumn(self, *columns):
+        self.drop(list(columns))
+        print(f"'{columns}' are dropped from the dataframe.")
 
     def calculateMissingColumnDataPercentage(self):
         missing_data = self.isnull().sum()
