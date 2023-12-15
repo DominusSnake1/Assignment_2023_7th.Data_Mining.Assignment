@@ -71,8 +71,7 @@ class ProcessColumns:
             else:
                 return None
 
-        missing_imdb_ratings = (100 - ((self.dataframe['IMDb Rating'].count() / self.dataframe.shape[0]) * 100)).round(2)
-        print(f"{missing_imdb_ratings}% of the \"IMDb Rating\" values are missing from the dataset.")
+        print("Getting the IMDb Data...")
 
         total_rows = self.dataframe.shape[0]
         imdb_data_list = []
@@ -98,6 +97,3 @@ class ProcessColumns:
 
         new_dataframe = pd.DataFrame(imdb_data_list)
         new_dataframe.to_excel('Data/imdb_data.xlsx', index=False)
-
-        missing_imdb_ratings = (100 - ((self.dataframe['IMDb Rating'].count() / self.dataframe.shape[0]) * 100)).round(2)
-        print(f"{missing_imdb_ratings}% of the \"IMDb Rating\" values are missing from the dataset.")

@@ -30,9 +30,9 @@ class Dataset(pd.DataFrame):
     def showColumns(self, *columns):
         print(self[list(columns)])
 
-    def dropColumn(self, *columns):
-        self.drop(list(columns))
-        print(f"'{columns}' are dropped from the dataframe.")
+    def dropColumn(self, column):
+        self.drop(column, axis=1, inplace=True)
+        print(f"'{column}' is dropped from the dataframe.")
 
     def calculateMissingColumnDataPercentage(self):
         missing_data = self.isnull().sum()
