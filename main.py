@@ -1,20 +1,31 @@
-import os.path
+import os
 from Classes.Preprocessing import ProcessColumns
 from Classes.Dataset import Dataset
 
 
 def main():
-    df = Dataset()
-    df.createDEMO(5)
-    df = Dataset("Data/Demos/DEMO_5.xlsx")
+    demo_num, df = startup()
     preprocessing(df)
+
+    if os.path.exists(f"Data/Demos/DEMO_{demo_num}.xlsx"):
+        os.remove(f"Data/Demos/DEMO_{demo_num}.xlsx")
+
+
+def startup():
+    yn = input("Do you want to use a demo of the dataset? (y / [n])\n")
+    if yn:
+        num = int(input("How many rows do you want in your demo?\n"))
+        Dataset().createDEMO(num)
+        return num, Dataset(f"Data/Demos/DEMO_{num}.xlsx")
+    else:
+        return None, Dataset()
 
 
 def preprocessing(df):
-    df.showAllColumnNames()
     df.dropColumn('Distributor')
-    df.showAllColumnNames()
+
     pc = ProcessColumns(df)
+
     # pc.processOscarWinner()
     # pc.processLabelEncoding('Script Type')
     # pc.processMinMaxScaler('Rotten Tomatoes  critics')
@@ -22,8 +33,8 @@ def preprocessing(df):
     # pc.processMinMaxScaler('Metacritic  critics')
     # pc.processMinMaxScaler('Metacritic Audience ')
 
-    if not os.path.exists("Data/imdb_data.xlsx"):
-        pc.getIMDbData()
+    pc.processIMDbRating()
+    df.showColumns("Film", "IMDb Rating")
 
 
 if __name__ == '__main__':
