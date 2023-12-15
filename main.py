@@ -28,6 +28,7 @@ def preprocessing(df):
     df.dropColumn('Domestic Gross')
     df.dropColumn('Foreign Gross')
     df.dropColumn('Worldwide Gross')
+    df.dropColumn('Genre')
 
     pc = ProcessColumns(df)
 

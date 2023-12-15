@@ -1,5 +1,4 @@
 import ast
-import os.path
 from sklearn import preprocessing
 import pandas as pd
 import imdb
