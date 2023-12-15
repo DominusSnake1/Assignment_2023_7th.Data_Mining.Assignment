@@ -31,6 +31,9 @@ def preprocessing(df):
 
     pc = ProcessColumns(df)
 
+    if not os.path.exists('Data/imdb_data.xlsx'):
+        pc.generateIMDbData()
+
     # pc.processOscarWinner()
     # pc.processLabelEncoding('Script Type')
     # pc.processMinMaxScaler('Rotten Tomatoes  critics')
@@ -38,12 +41,12 @@ def preprocessing(df):
     # pc.processMinMaxScaler('Metacritic  critics')
     # pc.processMinMaxScaler('Metacritic Audience ')
     # pc.processIMDbRating()
+    # pc.processMinMaxScaler('IMDb Rating)
     # pc.processIMDBvsRTdisparity()
+    # pc.processReleaseDate()
 
-    df.showColumns("Film", "Release Date (US)")
-    pc.processReleaseDate()
-    df.showColumns("Film", "Release Date (US)")
-    df.showColumnUnique('Release Date (US)')
+    pc.processPrimaryGenre()
+    df.showColumns('Film', 'Primary Genre')
 
 
 if __name__ == '__main__':

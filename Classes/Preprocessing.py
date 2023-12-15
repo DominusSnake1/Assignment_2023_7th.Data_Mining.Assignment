@@ -1,3 +1,5 @@
+import ast
+import os.path
 from sklearn import preprocessing
 import pandas as pd
 import imdb
@@ -24,7 +26,7 @@ class ProcessColumns:
     def processOscarWinner(self):
         self.dataframe['Oscar Winners'] = self.dataframe['Oscar Winners'].map({'Oscar winner': 1, 'Oscar Winner': 1, 0: 0})
 
-    def __generateIMDbData(self):
+    def generateIMDbData(self):
         def __get_imdb_data(movie_title):
             api = imdb.Cinemagoer()
 
@@ -42,7 +44,7 @@ class ProcessColumns:
         total_rows = self.dataframe.shape[0]
         imdb_data_list = []
 
-        included_columns = ['localized title', 'rating', 'imdbID']
+        included_columns = ['localized title', 'rating', 'imdbID', 'genres']
 
         for index, row in self.dataframe.iterrows():
             if pd.isna(row['IMDb Rating']):
@@ -68,8 +70,6 @@ class ProcessColumns:
         print("IMDb Data is now saved in `Data/imdb_data.xlsx`.")
 
     def processIMDbRating(self):
-        self.__generateIMDbData()
-
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
         imdb_data['rating'] = imdb_data['rating'] * 10
         self.dataframe['IMDb Rating'] = imdb_data['rating'].astype(int)
@@ -93,3 +93,7 @@ class ProcessColumns:
 
         enc = preprocessing.LabelEncoder()
         self.dataframe['Release Date (US)'] = enc.fit_transform(self.dataframe['Release Date (US)'])
+
+    def processPrimaryGenre(self):
+        imdb_data = pd.read_excel('Data/imdb_data.xlsx')
+        self.dataframe['Primary Genre'] = imdb_data['genres'].apply(lambda x: ast.literal_eval(x)[0] if pd.notna(x) else None)
