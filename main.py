@@ -10,6 +10,8 @@ def main():
     if os.path.exists(f"Data/Demos/DEMO_{demo_num}.xlsx"):
         os.remove(f"Data/Demos/DEMO_{demo_num}.xlsx")
 
+    df.to_excel('Data/cleaner_movies.xlsx', index=False)
+
 
 def startup():
     yn = input("Do you want to use a demo of the dataset? (y / [n])\n")
@@ -35,19 +37,17 @@ def preprocessing(df):
     if not os.path.exists('Data/imdb_data.xlsx'):
         pc.generateIMDbData()
 
-    # pc.processOscarWinner()
-    # pc.processLabelEncoding('Script Type')
-    # pc.processMinMaxScaler('Rotten Tomatoes  critics')
-    # pc.processMinMaxScaler('Rotten Tomatoes Audience ')
-    # pc.processMinMaxScaler('Metacritic  critics')
-    # pc.processMinMaxScaler('Metacritic Audience ')
-    # pc.processIMDbRating()
-    # pc.processMinMaxScaler('IMDb Rating)
-    # pc.processIMDBvsRTdisparity()
-    # pc.processReleaseDate()
-
+    pc.processOscarWinner()
+    pc.processLabelEncoding('Script Type')
+    pc.processMinMaxScaler('Rotten Tomatoes  critics')
+    pc.processMinMaxScaler('Rotten Tomatoes Audience ')
+    pc.processMinMaxScaler('Metacritic  critics')
+    pc.processMinMaxScaler('Metacritic Audience ')
+    pc.processIMDbRating()
+    pc.processMinMaxScaler('IMDb Rating')
+    pc.processIMDBvsRTdisparity()
+    pc.processReleaseDate()
     pc.processPrimaryGenre()
-    df.showColumns('Film', 'Primary Genre')
 
 
 if __name__ == '__main__':
