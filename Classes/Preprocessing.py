@@ -7,7 +7,6 @@ import imdb
 class ProcessColumns:
     def __init__(self, dataframe):
         self.dataframe = dataframe
-        # dataframe.dropColumn('Distributor')
 
     def processLabelEncoding(self, column):
         enc = preprocessing.LabelEncoder()
