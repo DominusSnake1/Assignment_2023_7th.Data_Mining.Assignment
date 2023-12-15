@@ -23,6 +23,11 @@ def startup():
 
 def preprocessing(df):
     df.dropColumn('Distributor')
+    df.dropColumn('Oscar Detail')
+    df.dropColumn('Opening Weekend')
+    df.dropColumn('Domestic Gross')
+    df.dropColumn('Foreign Gross')
+    df.dropColumn('Worldwide Gross')
 
     pc = ProcessColumns(df)
 
@@ -32,9 +37,13 @@ def preprocessing(df):
     # pc.processMinMaxScaler('Rotten Tomatoes Audience ')
     # pc.processMinMaxScaler('Metacritic  critics')
     # pc.processMinMaxScaler('Metacritic Audience ')
+    # pc.processIMDbRating()
+    # pc.processIMDBvsRTdisparity()
 
-    pc.processIMDbRating()
-    df.showColumns("Film", "IMDb Rating")
+    df.showColumns("Film", "Release Date (US)")
+    pc.processReleaseDate()
+    df.showColumns("Film", "Release Date (US)")
+    df.showColumnUnique('Release Date (US)')
 
 
 if __name__ == '__main__':

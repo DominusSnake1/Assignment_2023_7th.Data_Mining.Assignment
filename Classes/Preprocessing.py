@@ -1,5 +1,3 @@
-import os.path
-
 from sklearn import preprocessing
 import pandas as pd
 import imdb
@@ -59,14 +57,12 @@ class ProcessColumns:
 
             current_progress = round(((index / total_rows) * 100), 2)
 
-            print(f"\r{current_progress}% Complete", end='', flush=True)
+            print(f"\r{current_progress} % Complete", end='', flush=True)
 
-        print("\r100% Complete!\n", flush=True)
+        print("\r100 % Complete!\n", flush=True)
 
         new_dataframe = pd.DataFrame(imdb_data_list)
         new_dataframe.rename(columns={"localized title": "Film"}, inplace=True)
-        if os.path.exists('Data/imdb_data.xlsx'):
-            os.remove('Data/imdb_data.xlsx')
         new_dataframe.to_excel('Data/imdb_data.xlsx', index=False)
 
         print("IMDb Data is now saved in `Data/imdb_data.xlsx`.")
@@ -75,4 +71,25 @@ class ProcessColumns:
         self.__generateIMDbData()
 
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
-        self.dataframe['IMDb Rating'] = imdb_data['rating']
+        imdb_data['rating'] = imdb_data['rating'] * 10
+        self.dataframe['IMDb Rating'] = imdb_data['rating'].astype(int)
+
+    def processIMDBvsRTdisparity(self):
+        self.dataframe['IMDB vs RT disparity'] = self.dataframe['IMDb Rating'] - self.dataframe['Rotten Tomatoes Audience ']
+
+    def processReleaseDate(self):
+        def get_season(month):
+            if 3 <= month <= 5:
+                return 'Spring'
+            elif 6 <= month <= 8:
+                return 'Summer'
+            elif 9 <= month <= 11:
+                return 'Autumn'
+            else:
+                return 'Winter'
+
+        self.dataframe['Release Date (US)'] = pd.to_datetime(self.dataframe['Release Date (US)'], errors='coerce')
+        self.dataframe['Release Date (US)'] = self.dataframe['Release Date (US)'].dt.month.map(get_season)
+
+        enc = preprocessing.LabelEncoder()
+        self.dataframe['Release Date (US)'] = enc.fit_transform(self.dataframe['Release Date (US)'])
