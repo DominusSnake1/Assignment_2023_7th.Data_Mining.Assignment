@@ -7,7 +7,7 @@ class Dataset(pd.DataFrame):
 
     def createDEMO(self, X):
         DEMO = self.sample(X).copy()
-        DEMO.to_excel(f'Data/Demos/DEMO_{X}.xlsx', index=False)
+        DEMO.to_excel(f'Data/DEMO_{X}.xlsx', index=False)
 
     def showDataframe(self):
         print(self)
