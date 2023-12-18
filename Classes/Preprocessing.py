@@ -52,8 +52,8 @@ class ProcessColumns:
             movie = api.get_movie(movies[0].movieID)
             return movie.data
 
-        def __OMDbAPI_Helper(self, id):
-            api_key = c0c5d29a
+        def __OMDbAPI_Helper(id):
+            api_key = 'c0c5d29a'
             base_url = 'http://www.omdbapi.com/'
             imdbid = 'tt' + id
 
@@ -80,7 +80,13 @@ class ProcessColumns:
                 continue
 
             if 'rating' not in imdb_data.keys():
-                imdb_data['rating'] = __OMDbAPI_Helper(imdb_data['imdbID'])['imdbRating']
+                imdb_data['rating'] = 0
+
+            if 'genres' not in imdb_data.keys():
+                try:
+                    imdb_data['genres'] = __OMDbAPI_Helper(imdb_data['imdbID'])['Genre'].split(', ')
+                except:
+                    print(f"Could find `genres` for movie with id = {imdb_data['imdbID']}")
 
             new_row_dict = {key: imdb_data[key] for key in included_columns if key in imdb_data}
             imdb_data_list.append(new_row_dict)
@@ -99,6 +105,7 @@ class ProcessColumns:
 
     def processIMDbRating(self):
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
+        imdb_data['rating'] = imdb_data['rating'].fillna(imdb_data['rating'].mean())
         imdb_data['rating'] = imdb_data['rating'] * 10
         self.dataframe['IMDb Rating'] = imdb_data['rating'].astype(int)
 
