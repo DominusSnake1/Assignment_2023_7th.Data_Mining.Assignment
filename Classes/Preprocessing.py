@@ -11,11 +11,22 @@ class ProcessColumns:
     def __init__(self, dataframe):
         self.dataframe = dataframe
 
-    def processLabelEncoding(self, column):
+    def processOneHotEncoder(self, column):
+        """
+        Apply One-Hot Encoding to the specified column.
+
+        :param column: Column name to apply One-Hot Encoding.
+        """
         enc = preprocessing.LabelEncoder()
         self.dataframe[column] = enc.fit_transform(self.dataframe[column])
 
     def processMinMaxScaler(self, column, is_percentage=False):
+        """
+        Apply Min-Max Scaling to the specified column.
+
+        :param column: Column name to apply Min-Max Scaling.
+        :param is_percentage: Flag indicating if the data is in percentage format (Defaults at `False`).
+        """
         self.dataframe[column] = self.dataframe[column].replace('-', pd.NA)
 
         if is_percentage:
@@ -31,6 +42,9 @@ class ProcessColumns:
         self.dataframe[column] = self.dataframe[column].round(3)
 
     def processOscarWinner(self):
+        """
+         Map 'Oscar Winners' column to binary values based on the presence of 'Oscar winner' in the data.
+         """
         def __OscarWinner_map_helper(x):
             if x in ["Oscar winner", "Oscar Winner"]:
                 return 1
@@ -40,6 +54,9 @@ class ProcessColumns:
         self.dataframe['Oscar Winners'] = self.dataframe['Oscar Winners'].map(__OscarWinner_map_helper)
 
     def generateIMDbData(self):
+        """
+        Retrieve IMDb data for movies with missing IMDb ratings and save the data to 'Data/imdb_data.xlsx'.
+        """
         def __get_imdb_data(movie_title):
             api = imdb.Cinemagoer()
 
@@ -51,15 +68,6 @@ class ProcessColumns:
 
             movie = api.get_movie(movies[0].movieID)
             return movie.data
-
-        def __OMDbAPI_Helper(id):
-            api_key = 'c0c5d29a'
-            base_url = 'http://www.omdbapi.com/'
-            imdbid = 'tt' + id
-
-            params = {'apikey': api_key, 'i': imdbid}
-            response = requests.get(base_url, params=params)
-            return response.json()
 
         print("\nGetting the IMDb Data...")
 
@@ -83,10 +91,7 @@ class ProcessColumns:
                 imdb_data['rating'] = 0
 
             if 'genres' not in imdb_data.keys():
-                try:
-                    imdb_data['genres'] = __OMDbAPI_Helper(imdb_data['imdbID'])['Genre'].split(', ')
-                except:
-                    print(f"Could find `genres` for movie with id = {imdb_data['imdbID']}")
+                imdb_data['genres'] = "Not Available"
 
             new_row_dict = {key: imdb_data[key] for key in included_columns if key in imdb_data}
             imdb_data_list.append(new_row_dict)
@@ -104,15 +109,28 @@ class ProcessColumns:
         print("IMDb Data is now saved in `Data/imdb_data.xlsx`.")
 
     def processIMDbRating(self):
+        """
+        Process IMDb ratings by filling missing values and scaling.
+        """
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
         imdb_data['rating'] = imdb_data['rating'].fillna(imdb_data['rating'].mean())
         imdb_data['rating'] = imdb_data['rating'] * 10
         self.dataframe['IMDb Rating'] = imdb_data['rating'].astype(int)
 
     def processRatingDeviance(self, target, column1, column2):
+        """
+        Calculate and create a new column for the deviance between two rating columns.
+
+        :param target: New column name for storing the deviance.
+        :param column1: First rating column.
+        :param column2: Second rating column.
+        """
         self.dataframe[target] = self.dataframe[column1] - self.dataframe[column2]
 
     def processReleaseDate(self):
+        """
+        Process the 'Release Date (US)' column by converting it to seasons and applying One-Hot Encoding.
+        """
         def __get_season(month):
             if 3 <= month <= 5:
                 return 'Spring'
@@ -126,8 +144,9 @@ class ProcessColumns:
         self.dataframe['Release Date (US)'] = pd.to_datetime(self.dataframe['Release Date (US)'], errors='coerce')
         self.dataframe['Release Date (US)'] = self.dataframe['Release Date (US)'].dt.month.map(__get_season)
 
-        enc = preprocessing.LabelEncoder()
-        self.dataframe['Release Date (US)'] = enc.fit_transform(self.dataframe['Release Date (US)'])
+        df_encoded = pd.get_dummies(self.dataframe['Release Date (US)'], prefix='Season')
+
+        self.dataframe = pd.concat([self.dataframe, df_encoded], axis=1)
 
     def processPrimaryGenre(self):
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
