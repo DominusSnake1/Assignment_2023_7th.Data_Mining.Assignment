@@ -8,14 +8,14 @@ def main():
     demo_num, df = startup()
 
     # Perform preprocessing steps on the dataset
-    pp_df = preprocessing(df)
+    processed_df = preprocessing(df)
+
+    # Save the processed dataset to a new Excel file
+    processed_df.to_excel('Data/processed_movies.xlsx', index=False)
 
     # If a demo file was created, remove it
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
         os.remove(f"Data/DEMO_{demo_num}.xlsx")
-
-    # Save the processed dataset to a new Excel file
-    pp_df.to_excel('Data/processed_movies.xlsx', index=False)
 
 
 def startup():
@@ -55,47 +55,51 @@ def preprocessing(df):
 
     # Generate IMDb data if not already present.
     if not os.path.exists('Data/imdb_data.xlsx'):
-        pc.generateIMDbData()
+        pc.generateIMDbData(df)
 
     # Perform various data processing steps.
-    pc.processIMDbRating()
-    pc.processOscarWinner()
-    pc.processReleaseDate()
-    pc.processPrimaryGenre()
+    new_df = df
+    new_df = pc.processIMDbRating(new_df)
+    new_df = pc.processOscarWinner(new_df)
+    new_df = pc.processReleaseDate(new_df)
+    new_df = pc.processPrimaryGenre(new_df)
 
     # One-Hot encoding for categorical columns.
-    pc.processOneHotEncoder('Script Type')
-    pc.processOneHotEncoder('Primary Genre')
+    new_df = pc.processOneHotEncoder(new_df, 'Script Type')
+    new_df = pc.processOneHotEncoder(new_df, 'Primary Genre')
 
     # Min-Max scaling for numerical columns.
-    pc.processMinMaxScaler('Rotten Tomatoes  critics')
-    pc.processMinMaxScaler('Rotten Tomatoes Audience ')
-    pc.processMinMaxScaler('Metacritic  critics')
-    pc.processMinMaxScaler('Metacritic Audience ')
-    pc.processMinMaxScaler('Average critics ')
-    pc.processMinMaxScaler('Average audience ')
-    pc.processMinMaxScaler('IMDb Rating')
-    pc.processMinMaxScaler('Opening weekend ($million)')
-    pc.processMinMaxScaler('Domestic gross ($million)')
-    pc.processMinMaxScaler('Foreign Gross ($million)')
-    pc.processMinMaxScaler('Worldwide Gross ($million)')
-    pc.processMinMaxScaler('Budget ($million)')
-    pc.processMinMaxScaler(' of Gross earned abroad', is_percentage=True)
-    pc.processMinMaxScaler(' Budget recovered', is_percentage=True)
-    pc.processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True)
+    new_df = pc.processMinMaxScaler(new_df, 'Rotten Tomatoes  critics')
+    new_df = pc.processMinMaxScaler(new_df, 'Rotten Tomatoes Audience ')
+    new_df = pc.processMinMaxScaler(new_df, 'Metacritic  critics')
+    new_df = pc.processMinMaxScaler(new_df, 'Metacritic Audience ')
+    new_df = pc.processMinMaxScaler(new_df, 'Average critics ')
+    new_df = pc.processMinMaxScaler(new_df, 'Average audience ')
+    new_df = pc.processMinMaxScaler(new_df, 'IMDb Rating')
+    new_df = pc.processMinMaxScaler(new_df, 'Opening weekend ($million)')
+    new_df = pc.processMinMaxScaler(new_df, 'Domestic gross ($million)')
+    new_df = pc.processMinMaxScaler(new_df, 'Foreign Gross ($million)')
+    new_df = pc.processMinMaxScaler(new_df, 'Worldwide Gross ($million)')
+    new_df = pc.processMinMaxScaler(new_df, 'Budget ($million)')
+    new_df = pc.processMinMaxScaler(new_df, ' of Gross earned abroad', is_percentage=True)
+    new_df = pc.processMinMaxScaler(new_df, ' Budget recovered', is_percentage=True)
+    new_df = pc.processMinMaxScaler(new_df, ' Budget recovered opening weekend', is_percentage=True)
 
     # Deviance calculation for rating disparities.
-    pc.processRatingDeviance('IMDB vs RT disparity',
-                             'IMDb Rating',
-                             'Rotten Tomatoes Audience ')
-    pc.processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
-                             'Rotten Tomatoes  critics',
-                             'Metacritic  critics')
-    pc.processRatingDeviance('Audience vs Critics deviance ',
-                             'Average audience ',
-                             'Average critics ')
+    new_df = pc.processRatingDeviance(new_df,
+                                      'IMDB vs RT disparity',
+                                      'IMDb Rating',
+                                      'Rotten Tomatoes Audience ')
+    new_df = pc.processRatingDeviance(new_df,
+                                      'Rotten Tomatoes vs Metacritic  deviance',
+                                      'Rotten Tomatoes  critics',
+                                      'Metacritic  critics')
+    new_df = pc.processRatingDeviance(new_df,
+                                      'Audience vs Critics deviance ',
+                                      'Average audience ',
+                                      'Average critics ')
 
-    return df
+    return new_df
 
 
 if __name__ == '__main__':
