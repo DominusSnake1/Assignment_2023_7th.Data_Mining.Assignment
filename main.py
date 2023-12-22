@@ -11,7 +11,7 @@ def main():
     processed_df = preprocessing(dataset)
 
     # Save the processed dataset to a new Excel file.
-    processed_df.to_excel('Data/processed_movies.xlsx', index=False)
+    processed_df.to_excel('Data/movies_train.xlsx', index=False)
 
     # If a demo file was created, remove it.
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
