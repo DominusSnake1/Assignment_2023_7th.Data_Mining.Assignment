@@ -8,44 +8,45 @@ import json
 
 
 class ProcessColumns:
-    def __init__(self, dataframe):
-        self.dataframe = dataframe
+    def __init__(self, dataset):
+        self.dataset = dataset
 
-    def processOneHotEncoder(self, dataframe, column):
+    def processOneHotEncoder(self, column, _prefix):
         """
         Apply One-Hot Encoding to the specified column.
 
         :param column: Column name to apply One-Hot Encoding.
         """
-        enc = preprocessing.LabelEncoder()
-        dataframe[column] = enc.fit_transform(dataframe[column])
+        df_encoded = pd.get_dummies(self.dataset[column], prefix=_prefix)
 
-        return dataframe
+        self.dataset = pd.concat([self.dataset, df_encoded], axis=1)
 
-    def processMinMaxScaler(self, dataframe, column, is_percentage=False):
+        return self
+
+    def processMinMaxScaler(self, column, is_percentage=False):
         """
         Apply Min-Max Scaling to the specified column.
 
         :param column: Column name to apply Min-Max Scaling.
         :param is_percentage: Flag indicating if the data is in percentage format (Defaults at `False`).
         """
-        dataframe[column] = dataframe[column].replace('-', pd.NA)
+        self.dataset[column] = self.dataset[column].replace('-', pd.NA)
 
         if is_percentage:
-            dataframe[column] = pd.to_numeric(dataframe[column].str.rstrip('%'), errors='coerce')
+            self.dataset[column] = pd.to_numeric(self.dataset[column].str.rstrip('%'), errors='coerce')
         else:
-            dataframe[column] = pd.to_numeric(dataframe[column], errors='coerce')
+            self.dataset[column] = pd.to_numeric(self.dataset[column], errors='coerce')
 
-        dataframe[column] = dataframe[column].fillna(dataframe[column].mean())
-        dataframe[column] = dataframe[column].astype(int)
+        self.dataset[column] = self.dataset[column].fillna(self.dataset[column].mean())
+        self.dataset[column] = self.dataset[column].astype(int)
 
         min_max_scaler = preprocessing.MinMaxScaler()
-        dataframe[column] = min_max_scaler.fit_transform(dataframe[[column]])
-        dataframe[column] = dataframe[column].round(3)
+        self.dataset[column] = min_max_scaler.fit_transform(self.dataset[[column]])
+        self.dataset[column] = self.dataset[column].round(3)
 
-        return dataframe
+        return self
 
-    def processOscarWinner(self, dataframe):
+    def processOscarWinner(self):
         """
          Map 'Oscar Winners' column to binary values based on the presence of 'Oscar winner' in the data.
          """
@@ -55,11 +56,11 @@ class ProcessColumns:
 
             return 0
 
-        dataframe['Oscar Winners'] = dataframe['Oscar Winners'].map(__OscarWinner_map_helper)
+        self.dataset['Oscar Winners'] = self.dataset['Oscar Winners'].map(__OscarWinner_map_helper)
 
-        return dataframe
+        return self
 
-    def generateIMDbData(self, dataframe):
+    def generateIMDbData(self):
         """
         Retrieve IMDb data for movies with missing IMDb ratings and save the data to 'Data/imdb_data.xlsx'.
         """
@@ -77,12 +78,12 @@ class ProcessColumns:
 
         print("\nGetting the IMDb Data...")
 
-        total_rows = dataframe.shape[0]
+        total_rows = self.dataset.shape[0]
         imdb_data_list = []
 
         included_columns = ['localized title', 'rating', 'imdbID', 'genres']
 
-        for index, row in dataframe.iterrows():
+        for index, row in self.dataset.iterrows():
             if not pd.isna(row['IMDb Rating']):
                 continue
 
@@ -108,24 +109,24 @@ class ProcessColumns:
 
         print("\r100 % Complete!\n", flush=True)
 
-        new_dataframe = pd.DataFrame(imdb_data_list)
-        new_dataframe.rename(columns={"localized title": "Film"}, inplace=True)
-        new_dataframe.to_excel('Data/imdb_data.xlsx', index=False)
+        new_dataset = pd.DataFrame(imdb_data_list)
+        new_dataset.rename(columns={"localized title": "Film"}, inplace=True)
+        new_dataset.to_excel('Data/imdb_data.xlsx', index=False)
 
         print("IMDb Data is now saved in `Data/imdb_data.xlsx`.")
 
-    def processIMDbRating(self, dataframe):
+    def processIMDbRating(self):
         """
         Process IMDb ratings by filling missing values and scaling.
         """
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
         imdb_data['rating'] = imdb_data['rating'].fillna(imdb_data['rating'].mean())
         imdb_data['rating'] = imdb_data['rating'] * 10
-        dataframe['IMDb Rating'] = imdb_data['rating'].astype(int)
+        self.dataset['IMDb Rating'] = imdb_data['rating'].astype(int)
 
-        return dataframe
+        return self
 
-    def processRatingDeviance(self, dataframe, target, column1, column2):
+    def processRatingDeviance(self, target, column1, column2):
         """
         Calculate and create a new column for the deviance between two rating columns.
 
@@ -133,11 +134,11 @@ class ProcessColumns:
         :param column1: First rating column.
         :param column2: Second rating column.
         """
-        dataframe[target] = dataframe[column1] - dataframe[column2]
+        self.dataset[target] = self.dataset[column1] - self.dataset[column2]
 
-        return dataframe
+        return self
 
-    def processReleaseDate(self, dataframe):
+    def processReleaseDate(self):
         """
         Process the 'Release Date (US)' column by converting it to seasons and applying One-Hot Encoding.
         """
@@ -151,17 +152,28 @@ class ProcessColumns:
             else:
                 return 'Winter'
 
-        dataframe['Release Date (US)'] = pd.to_datetime(dataframe['Release Date (US)'], errors='coerce')
-        dataframe['Release Date (US)'] = dataframe['Release Date (US)'].dt.month.map(__get_season)
+        self.dataset['Release Date (US)'] = pd.to_datetime(self.dataset['Release Date (US)'], errors='coerce')
+        self.dataset['Release Date (US)'] = self.dataset['Release Date (US)'].dt.month.map(__get_season)
 
-        df_encoded = pd.get_dummies(dataframe['Release Date (US)'], prefix='Season')
+        df_encoded = pd.get_dummies(self.dataset['Release Date (US)'], prefix='Season')
 
-        dataframe = pd.concat([dataframe, df_encoded], axis=1)
+        self.dataset = pd.concat([self.dataset, df_encoded], axis=1)
 
-        return dataframe
+        return self
 
-    def processPrimaryGenre(self, dataframe):
+    def processPrimaryGenre(self):
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
-        dataframe['Primary Genre'] = imdb_data['genres'].apply(lambda x: ast.literal_eval(x)[0] if pd.notna(x) else None)
+        self.dataset['Primary Genre'] = imdb_data['genres'].apply(lambda x: ast.literal_eval(x)[0] if pd.notna(x) else None)
 
-        return dataframe
+        return self
+
+    def dropColumn(self, column):
+        """
+        Drop a specified column from the DataFrame.
+
+        :param column: Name of the column to drop.
+        """
+        self.dataset.drop(column, axis=1, inplace=True)
+        print(f"'{column}' is dropped from the dataframe.")
+
+        return self

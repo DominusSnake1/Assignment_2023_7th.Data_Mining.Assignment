@@ -66,15 +66,6 @@ class Dataset(pd.DataFrame):
         """
         print(self[list(columns)])
 
-    def dropColumn(self, column):
-        """
-        Drop a specified column from the DataFrame.
-
-        :param column: Name of the column to drop.
-        """
-        self.drop(column, axis=1, inplace=True)
-        print(f"'{column}' is dropped from the dataframe.")
-
     def calculateMissingColumnDataPercentage(self):
         """
         Calculate the percentage of missing data for each column in the DataFrame.

@@ -5,10 +5,10 @@ from Classes.Dataset import Dataset
 
 def main():
     # Initialize or load the dataset based on user input.
-    demo_num, df = startup()
+    demo_num, dataset = startup()
 
     # Perform preprocessing steps on the dataset.
-    processed_df = preprocessing(df)
+    processed_df = preprocessing(dataset)
 
     # Save the processed dataset to a new Excel file.
     processed_df.to_excel('Data/processed_movies.xlsx', index=False)
@@ -23,7 +23,7 @@ def startup():
     Function to determine whether to use a demo dataset or the complete dataset.
 
     :return: 1. Number of rows for the demo dataset.<br>
-    2. Dataset object containing the loaded or created dataset.
+    2. Dataset object containing the original or a created demo dataset.
     """
     yn = input("Do you want to use a demo of the dataset? (y / [n])\n")
 
@@ -40,64 +40,59 @@ def preprocessing(df):
     Function to perform preprocessing steps on the dataset.
 
     :param df: Dataset object to be preprocessed.
+    :return: The new processed dataframe.
     """
     # Initialize ProcessColumns object for further processing.
     pc = ProcessColumns(df)
 
     # Generate IMDb data if not already present.
     if not os.path.exists('Data/imdb_data.xlsx'):
-        pc.generateIMDbData(df)
+        pc.generateIMDbData()
 
     # Perform various data processing steps.
-    df = pc.processIMDbRating(df)
-    df = pc.processOscarWinner(df)
-    df = pc.processReleaseDate(df)
-    df = pc.processPrimaryGenre(df)
-    df = pc.processOneHotEncoder(df, 'Script Type')
-    df = pc.processOneHotEncoder(df, 'Primary Genre')
+    new_df = pc.processIMDbRating() \
+        .processOscarWinner() \
+        .processReleaseDate() \
+        .processPrimaryGenre() \
+        .processOneHotEncoder('Script Type', "SType") \
+        .processOneHotEncoder('Primary Genre', "Genre") \
+        .processMinMaxScaler('Rotten Tomatoes  critics') \
+        .processMinMaxScaler('Rotten Tomatoes Audience ') \
+        .processMinMaxScaler('Metacritic  critics') \
+        .processMinMaxScaler('Metacritic Audience ') \
+        .processMinMaxScaler('Average critics ') \
+        .processMinMaxScaler('Average audience ') \
+        .processMinMaxScaler('IMDb Rating') \
+        .processMinMaxScaler('Opening weekend ($million)') \
+        .processMinMaxScaler('Domestic gross ($million)') \
+        .processMinMaxScaler('Foreign Gross ($million)') \
+        .processMinMaxScaler('Worldwide Gross ($million)') \
+        .processMinMaxScaler('Budget ($million)') \
+        .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
+        .processRatingDeviance('IMDB vs RT disparity',
+                               'IMDb Rating',
+                               'Rotten Tomatoes Audience ') \
+        .processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
+                               'Rotten Tomatoes  critics',
+                               'Metacritic  critics') \
+        .processRatingDeviance('Audience vs Critics deviance ',
+                               'Average audience ',
+                               'Average critics ') \
+        .dropColumn('Distributor') \
+        .dropColumn('Oscar Detail') \
+        .dropColumn('Opening Weekend') \
+        .dropColumn('Domestic Gross') \
+        .dropColumn('Foreign Gross') \
+        .dropColumn('Worldwide Gross') \
+        .dropColumn('Genre') \
+        .dropColumn('Release Date (US)')\
+        .dropColumn('Script Type')\
+        .dropColumn('Primary Genre')\
+        .dropColumn('Film')
 
-    # Min-Max scaling for numerical columns.
-    df = pc.processMinMaxScaler(df, 'Rotten Tomatoes  critics')
-    df = pc.processMinMaxScaler(df, 'Rotten Tomatoes Audience ')
-    df = pc.processMinMaxScaler(df, 'Metacritic  critics')
-    df = pc.processMinMaxScaler(df, 'Metacritic Audience ')
-    df = pc.processMinMaxScaler(df, 'Average critics ')
-    df = pc.processMinMaxScaler(df, 'Average audience ')
-    df = pc.processMinMaxScaler(df, 'IMDb Rating')
-    df = pc.processMinMaxScaler(df, 'Opening weekend ($million)')
-    df = pc.processMinMaxScaler(df, 'Domestic gross ($million)')
-    df = pc.processMinMaxScaler(df, 'Foreign Gross ($million)')
-    df = pc.processMinMaxScaler(df, 'Worldwide Gross ($million)')
-    df = pc.processMinMaxScaler(df, 'Budget ($million)')
-    df = pc.processMinMaxScaler(df, ' of Gross earned abroad', is_percentage=True)
-    df = pc.processMinMaxScaler(df, ' Budget recovered', is_percentage=True)
-    df = pc.processMinMaxScaler(df, ' Budget recovered opening weekend', is_percentage=True)
-
-    # Deviance calculation for rating disparities.
-    df = pc.processRatingDeviance(df,
-                                  'IMDB vs RT disparity',
-                                  'IMDb Rating',
-                                  'Rotten Tomatoes Audience ')
-    df = pc.processRatingDeviance(df,
-                                  'Rotten Tomatoes vs Metacritic  deviance',
-                                  'Rotten Tomatoes  critics',
-                                  'Metacritic  critics')
-    df = pc.processRatingDeviance(df,
-                                  'Audience vs Critics deviance ',
-                                  'Average audience ',
-                                  'Average critics ')
-
-    # Drop columns not needed for processing.
-    df.dropColumn('Distributor')
-    df.dropColumn('Oscar Detail')
-    df.dropColumn('Opening Weekend')
-    df.dropColumn('Domestic Gross')
-    df.dropColumn('Foreign Gross')
-    df.dropColumn('Worldwide Gross')
-    df.dropColumn('Genre')
-    df.dropColumn('Release Date (US)')
-
-    return df
+    return new_df.dataset
 
 
 if __name__ == '__main__':
