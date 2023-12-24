@@ -197,3 +197,8 @@ class ProcessColumns:
         print(f"'{column}' is dropped from the dataframe.")
 
         return self
+
+    def addBlankColumn(self, columnName):
+        self.dataset[columnName] = ''
+
+        return self

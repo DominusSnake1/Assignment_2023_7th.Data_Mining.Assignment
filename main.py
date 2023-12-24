@@ -1,6 +1,7 @@
 import os
 from Classes.Preprocessing import ProcessColumns
 from Classes.Dataset import Dataset
+from Models.OscarWinnerModel import OscarWinnerModel
 
 
 def main():
@@ -12,6 +13,9 @@ def main():
 
     # Process the Test Dataset.
     processTestSet()
+
+    # model = OscarWinnerModel()
+    # model.train_test()
 
 
 def startup():
@@ -77,13 +81,16 @@ def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
         .dropColumn('Script Type')\
         .dropColumn('Primary Genre')\
         .dropColumn('Film')\
-        .dropColumn('ID')
+        .dropColumn('ID')\
+        .addBlankColumn('Oscar Winners')
 
     processed_df = new_df.dataset
 
     # Save the processed dataset to a new Excel file.
     processed_df.to_excel('Data/movies_test.xlsx', index=False)
     print("Processed Dataframe (movies_test) is now created!\n")
+
+    Dataset('Data/movies_test.xlsx').showAllColumnNames()
 
 
 def processTrainSet(df, demo_num):
@@ -152,6 +159,8 @@ def processTrainSet(df, demo_num):
     # If a demo file was created, remove it.
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
         os.remove(f"Data/DEMO_{demo_num}.xlsx")
+
+    Dataset('Data/movies_train.xlsx').showAllColumnNames()
 
 
 if __name__ == '__main__':
