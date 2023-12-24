@@ -7,15 +7,11 @@ def main():
     # Initialize or load the dataset based on user input.
     demo_num, dataset = startup()
 
-    # Perform preprocessing steps on the dataset.
-    processed_df = preprocessing(dataset)
+    # Process the Train Dataset.
+    processTrainSet(dataset, demo_num)
 
-    # Save the processed dataset to a new Excel file.
-    processed_df.to_excel('Data/movies_train.xlsx', index=False)
-
-    # If a demo file was created, remove it.
-    if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
-        os.remove(f"Data/DEMO_{demo_num}.xlsx")
+    # Process the Test Dataset.
+    processTestSet()
 
 
 def startup():
@@ -35,12 +31,67 @@ def startup():
     return num, Dataset(f"Data/DEMO_{num}.xlsx")
 
 
-def preprocessing(df):
+def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
     """
-    Function to perform preprocessing steps on the dataset.
+
+    :param test_loc: The location of the Test Dataset.
+    """
+    df = Dataset(test_loc)
+    pc = ProcessColumns(df)
+
+    new_df = pc.processReleaseDate() \
+        .processPrimaryGenre() \
+        .processOneHotEncoder('Script Type', "SType") \
+        .processOneHotEncoder('Primary Genre', "Genre") \
+        .processMinMaxScaler('Rotten Tomatoes  critics') \
+        .processMinMaxScaler('Rotten Tomatoes Audience ') \
+        .processMinMaxScaler('Metacritic  critics') \
+        .processMinMaxScaler('Metacritic Audience ') \
+        .processMinMaxScaler('Average critics ') \
+        .processMinMaxScaler('Average audience ') \
+        .processMinMaxScaler('IMDb Rating') \
+        .processMinMaxScaler('Opening weekend ($million)') \
+        .processMinMaxScaler('Domestic gross ($million)') \
+        .processMinMaxScaler('Foreign Gross ($million)') \
+        .processMinMaxScaler('Worldwide Gross ($million)') \
+        .processMinMaxScaler('Budget ($million)') \
+        .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
+        .processRatingDeviance('IMDB vs RT disparity',
+                               'IMDb Rating',
+                               'Rotten Tomatoes Audience ') \
+        .processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
+                               'Rotten Tomatoes  critics',
+                               'Metacritic  critics') \
+        .processRatingDeviance('Audience vs Critics deviance ',
+                               'Average audience ',
+                               'Average critics ') \
+        .dropColumn('Distributor') \
+        .dropColumn('Opening Weekend') \
+        .dropColumn('Domestic Gross') \
+        .dropColumn('Foreign Gross') \
+        .dropColumn('Worldwide Gross') \
+        .dropColumn('Genre') \
+        .dropColumn('Release Date (US)')\
+        .dropColumn('Script Type')\
+        .dropColumn('Primary Genre')\
+        .dropColumn('Film')\
+        .dropColumn('ID')
+
+    processed_df = new_df.dataset
+
+    # Save the processed dataset to a new Excel file.
+    processed_df.to_excel('Data/movies_test.xlsx', index=False)
+    print("Processed Dataframe (movies_test) is now created!\n")
+
+
+def processTrainSet(df, demo_num):
+    """
+    Processes the original dataset "movies.xlsx" into the processed Train Set "movies_train.xlsx"
 
     :param df: Dataset object to be preprocessed.
-    :return: The new processed dataframe.
+    :param demo_num: Number of rows sampled in DEMO set.
     """
     # Initialize ProcessColumns object for further processing.
     pc = ProcessColumns(df)
@@ -92,7 +143,15 @@ def preprocessing(df):
         .dropColumn('Primary Genre')\
         .dropColumn('Film')
 
-    return new_df.dataset
+    processed_df = new_df.dataset
+
+    # Save the processed dataset to a new Excel file.
+    processed_df.to_excel('Data/movies_train.xlsx', index=False)
+    print("Processed Dataframe (movies_test) is now created!\n")
+
+    # If a demo file was created, remove it.
+    if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
+        os.remove(f"Data/DEMO_{demo_num}.xlsx")
 
 
 if __name__ == '__main__':
