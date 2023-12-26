@@ -199,6 +199,6 @@ class ProcessColumns:
         return self
 
     def addBlankColumn(self, columnName):
-        self.dataset[columnName] = ''
+        self.dataset[columnName] = 0
 
         return self

@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from Classes.Preprocessing import ProcessColumns
 from Classes.Dataset import Dataset
 from Models.OscarWinnerModel import OscarWinnerModel
@@ -8,14 +9,20 @@ def main():
     # Initialize or load the dataset based on user input.
     demo_num, dataset = startup()
 
-    # Process the Train Dataset.
-    processTrainSet(dataset, demo_num)
+    if not os.path.exists('Data/movies_train.xlsx'):
+        # Process the Train Dataset.
+        processTrainSet(dataset, demo_num)
 
-    # Process the Test Dataset.
-    processTestSet()
+    if not os.path.exists('Data/movies_test.xlsx'):
+        # Process the Test Dataset.
+        processTestSet()
 
-    # model = OscarWinnerModel()
-    # model.train_test()
+    train_df = pd.read_excel('Data/movies_train.xlsx')
+    test_df = pd.read_excel('Data/movies_test.xlsx')
+    train_df = train_df[test_df.columns]
+
+    model = OscarWinnerModel(train_df, test_df)
+    model.train_test()
 
 
 def startup():
@@ -37,13 +44,15 @@ def startup():
 
 def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
     """
+    Processes the test dataset "movies_test _anon_sample.xlsx" into the processed Test Set "movies_test.xlsx"
 
     :param test_loc: The location of the Test Dataset.
     """
     df = Dataset(test_loc)
     pc = ProcessColumns(df)
 
-    new_df = pc.processReleaseDate() \
+    new_df = pc.addBlankColumn('Oscar Winners') \
+        .processReleaseDate() \
         .processPrimaryGenre() \
         .processOneHotEncoder('Script Type', "SType") \
         .processOneHotEncoder('Primary Genre', "Genre") \
@@ -81,8 +90,7 @@ def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
         .dropColumn('Script Type')\
         .dropColumn('Primary Genre')\
         .dropColumn('Film')\
-        .dropColumn('ID')\
-        .addBlankColumn('Oscar Winners')
+        .dropColumn('ID')
 
     processed_df = new_df.dataset
 
@@ -100,6 +108,9 @@ def processTrainSet(df, demo_num):
     :param df: Dataset object to be preprocessed.
     :param demo_num: Number of rows sampled in DEMO set.
     """
+    if os.path.exists('Data/movies_train.xlsx'):
+        return
+
     # Initialize ProcessColumns object for further processing.
     pc = ProcessColumns(df)
 
