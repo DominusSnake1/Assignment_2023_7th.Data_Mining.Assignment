@@ -13,9 +13,10 @@ def main():
         # Process the Train Dataset.
         processTrainSet(dataset, demo_num)
 
-    if not os.path.exists('Data/movies_test.xlsx'):
+    if os.path.exists('Data/movies_test.xlsx'):
+        os.remove('Data/movies_test.xlsx')
         # Process the Test Dataset.
-        processTestSet()
+    processTestSet()
 
     train_df = pd.read_excel('Data/movies_train.xlsx')
     test_df = pd.read_excel('Data/movies_test.xlsx')
@@ -98,8 +99,6 @@ def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
     processed_df.to_excel('Data/movies_test.xlsx', index=False)
     print("Processed Dataframe (movies_test) is now created!\n")
 
-    Dataset('Data/movies_test.xlsx').showAllColumnNames()
-
 
 def processTrainSet(df, demo_num):
     """
@@ -170,8 +169,6 @@ def processTrainSet(df, demo_num):
     # If a demo file was created, remove it.
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
         os.remove(f"Data/DEMO_{demo_num}.xlsx")
-
-    Dataset('Data/movies_train.xlsx').showAllColumnNames()
 
 
 if __name__ == '__main__':
