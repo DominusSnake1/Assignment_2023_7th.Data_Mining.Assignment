@@ -3,6 +3,7 @@ import pandas as pd
 from Classes.Preprocessing import ProcessColumns
 from Classes.Dataset import Dataset
 from Models.OscarWinnerModel import OscarWinnerModel
+from Utils import Utils
 
 
 def main():
@@ -11,7 +12,11 @@ def main():
 
     if not os.path.exists('Data/movies_train.xlsx'):
         # Process the Train Dataset.
-        processTrainSet(dataset, demo_num)
+        processTrainSet(dataset)
+
+    # If a demo file was created, remove it.
+    if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
+        os.remove(f"Data/DEMO_{demo_num}.xlsx")
 
     if os.path.exists('Data/movies_test.xlsx'):
         os.remove('Data/movies_test.xlsx')
@@ -27,20 +32,12 @@ def main():
 
 
 def startup():
-    """
-    Function to determine whether to use a demo dataset or the complete dataset.
+    demo, sample = Utils.mode_selector()
 
-    :return: 1. Number of rows for the demo dataset.<br>
-    2. Dataset object containing the original or a created demo dataset.
-    """
-    yn = input("Do you want to use a demo of the dataset? (y / [n])\n")
-
-    if yn.lower() == "n":
-        return None, Dataset()
-
-    num = int(input("How many rows do you want in your demo?\n"))
-    Dataset().createDEMO(num)
-    return num, Dataset(f"Data/DEMO_{num}.xlsx")
+    if demo:
+        Dataset().createDEMO(sample)
+        return sample, Dataset(f"Data/DEMO_{sample}.xlsx")
+    return None, Dataset()
 
 
 def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
@@ -100,12 +97,11 @@ def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
     print("Processed Dataframe (movies_test) is now created!\n")
 
 
-def processTrainSet(df, demo_num):
+def processTrainSet(df):
     """
     Processes the original dataset "movies.xlsx" into the processed Train Set "movies_train.xlsx"
 
     :param df: Dataset object to be preprocessed.
-    :param demo_num: Number of rows sampled in DEMO set.
     """
     if os.path.exists('Data/movies_train.xlsx'):
         return
@@ -165,10 +161,6 @@ def processTrainSet(df, demo_num):
     # Save the processed dataset to a new Excel file.
     processed_df.to_excel('Data/movies_train.xlsx', index=False)
     print("Processed Dataframe (movies_test) is now created!\n")
-
-    # If a demo file was created, remove it.
-    if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
-        os.remove(f"Data/DEMO_{demo_num}.xlsx")
 
 
 if __name__ == '__main__':

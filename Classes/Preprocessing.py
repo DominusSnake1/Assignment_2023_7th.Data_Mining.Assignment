@@ -53,7 +53,6 @@ class ProcessColumns:
         def __OscarWinner_map_helper(x):
             if x in ["Oscar winner", "Oscar Winner"]:
                 return 1
-
             return 0
 
         self.dataset['Oscar Winners'] = self.dataset['Oscar Winners'].map(__OscarWinner_map_helper)
@@ -69,7 +68,6 @@ class ProcessColumns:
         """
         def __get_imdb_data(movie_title):
             api = imdb.Cinemagoer()
-
             movie_title = str(movie_title)
             retries = 0
             max_retries = 3
@@ -80,10 +78,8 @@ class ProcessColumns:
 
                     if movies is None:
                         return None
-
                     movie = api.get_movie(movies[0].movieID)
                     return movie.data
-
                 except (socket.timeout, imdb.IMDbDataAccessError):
                     time.sleep(5)
                     retries += 1
@@ -100,13 +96,11 @@ class ProcessColumns:
         for start_index in range(0, total_rows, batch_size):
             end_index = min(start_index + batch_size, total_rows)
             batch_df = self.dataset.iloc[start_index:end_index]
-
             imdb_data_list = []
 
             for index, row in batch_df.iterrows():
                 if not pd.isna(row['IMDb Rating']):
                     continue
-
                 title = row['Film']
                 imdb_data = __get_imdb_data(title)
 
@@ -115,24 +109,20 @@ class ProcessColumns:
 
                 if 'rating' not in imdb_data.keys():
                     imdb_data['rating'] = 0
-
                 if 'genres' not in imdb_data.keys():
                     imdb_data['genres'] = ['Not Available']
 
                 new_row_dict = {key: imdb_data[key] for key in included_columns if key in imdb_data}
                 imdb_data_list.append(new_row_dict)
-
                 current_progress = round(((index / total_rows) * 100), 2)
                 print(f"\r{current_progress} % Complete", end='', flush=True)
 
             imdb_data_batches.append(pd.DataFrame(imdb_data_list))
 
         print("\r100 % Complete!\n", flush=True)
-
         final_imdb_data = pd.concat(imdb_data_batches, ignore_index=True)
         final_imdb_data.rename(columns={"localized title": "Film"}, inplace=True)
         final_imdb_data.to_excel(final_output_path, index=False)
-
         print(f"Final IMDb Data is now saved in `{final_output_path}`.")
 
     def processIMDbRating(self):

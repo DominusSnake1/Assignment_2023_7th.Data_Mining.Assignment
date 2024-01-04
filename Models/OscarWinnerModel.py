@@ -1,6 +1,7 @@
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import cross_val_score
 
@@ -22,8 +23,9 @@ class OscarWinnerModel:
 
         # Train the model
         # model = LogisticRegression(max_iter=1500)
-        # model = SVC(kernel='linear')
-        model = KNeighborsClassifier(n_neighbors=3)
+        # model = DecisionTreeClassifier()
+        model = RandomForestClassifier()
+        # model = KNeighborsClassifier(n_neighbors=3)
         model.fit(X_train, y_train)
 
         y_pred = model.predict(X_test)
@@ -34,13 +36,16 @@ class OscarWinnerModel:
         self.test_df.to_excel('Data/movies_test.xlsx', index=False)
 
         accuracy = accuracy_score(y_test, y_pred)
-        print(f'\nAccuracy: {accuracy}')
+        print(f'Accuracy: {accuracy}')
 
         # Classification Report
-        print('\nClassification Report:\n', classification_report(y_test, y_pred, zero_division=1))
+        print('Classification Report:\n', classification_report(y_test, y_pred, zero_division=1))
 
         cv_accuracy = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
-        print(f'\nCross-Validation Accuracy: {cv_accuracy.mean()}')
+        print(f'Cross-Validation Accuracy: {cv_accuracy.mean()}')
 
         # Print the predictions
-        print("\nPredictions for 'Oscar Winners':", y_pred)
+        print("Predictions for 'Oscar Winners':", y_pred)
+
+        num_winners = sum(1 if x == 1 else 0 for x in y_pred)
+        print(f"Number of 'Predicted' Winners: {num_winners}")
