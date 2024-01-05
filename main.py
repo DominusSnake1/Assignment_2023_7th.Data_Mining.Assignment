@@ -10,22 +10,23 @@ def main():
     # Initialize or load the dataset based on user input.
     demo_num, dataset = startup()
 
+    # Process the Train Dataset.
     if not os.path.exists('Data/movies_train.xlsx'):
-        # Process the Train Dataset.
         processTrainSet(dataset)
 
     # If a demo file was created, remove it.
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
         os.remove(f"Data/DEMO_{demo_num}.xlsx")
 
-    if os.path.exists('Data/movies_test.xlsx'):
-        os.remove('Data/movies_test.xlsx')
-        # Process the Test Dataset.
-    processTestSet()
+    # Process the Test Dataset.
+    if not os.path.exists('Data/movies_test.xlsx'):
+        processTestSet()
 
     train_df = pd.read_excel('Data/movies_train.xlsx')
     test_df = pd.read_excel('Data/movies_test.xlsx')
-    train_df = train_df[test_df.columns]
+
+    if os.path.exists("Data/predictions.csv"):
+        os.remove("Data/predictions.csv")
 
     model = OscarWinnerModel(train_df, test_df)
     model.train_test()
@@ -40,7 +41,7 @@ def startup():
     return None, Dataset()
 
 
-def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
+def processTestSet(test_loc="Data/movies_test _anon.xlsx"):
     """
     Processes the test dataset "movies_test _anon_sample.xlsx" into the processed Test Set "movies_test.xlsx"
 
@@ -49,7 +50,7 @@ def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
     df = Dataset(test_loc)
     pc = ProcessColumns(df)
 
-    new_df = pc.addBlankColumn('Oscar Winners') \
+    new_df = pc.addBlankColumn('Oscar Winners', 0) \
         .processReleaseDate() \
         .processPrimaryGenre() \
         .processOneHotEncoder('Script Type', "SType") \
@@ -84,11 +85,10 @@ def processTestSet(test_loc="Data/movies_test _anon_sample.xlsx"):
         .dropColumn('Foreign Gross') \
         .dropColumn('Worldwide Gross') \
         .dropColumn('Genre') \
-        .dropColumn('Release Date (US)')\
-        .dropColumn('Script Type')\
-        .dropColumn('Primary Genre')\
-        .dropColumn('Film')\
-        .dropColumn('ID')
+        .dropColumn('Release Date (US)') \
+        .dropColumn('Script Type') \
+        .dropColumn('Primary Genre') \
+        .dropColumn('Film')
 
     processed_df = new_df.dataset
 
@@ -103,9 +103,6 @@ def processTrainSet(df):
 
     :param df: Dataset object to be preprocessed.
     """
-    if os.path.exists('Data/movies_train.xlsx'):
-        return
-
     # Initialize ProcessColumns object for further processing.
     pc = ProcessColumns(df)
 
@@ -114,11 +111,14 @@ def processTrainSet(df):
         pc.generateIMDbData()
 
     # Perform various data processing steps.
-    new_df = pc.processIMDbRating() \
+    new_df = pc.addBlankColumn('ID', 0) \
+        .processIMDbRating() \
         .processOscarWinner() \
         .processReleaseDate() \
         .processPrimaryGenre() \
         .processOneHotEncoder('Script Type', "SType") \
+        .addBlankColumn('SType_based on a true story, remake', False) \
+        .addBlankColumn('SType_semi-sequel', False) \
         .processOneHotEncoder('Primary Genre', "Genre") \
         .processMinMaxScaler('Rotten Tomatoes  critics') \
         .processMinMaxScaler('Rotten Tomatoes Audience ') \
@@ -151,9 +151,9 @@ def processTrainSet(df):
         .dropColumn('Foreign Gross') \
         .dropColumn('Worldwide Gross') \
         .dropColumn('Genre') \
-        .dropColumn('Release Date (US)')\
-        .dropColumn('Script Type')\
-        .dropColumn('Primary Genre')\
+        .dropColumn('Release Date (US)') \
+        .dropColumn('Script Type') \
+        .dropColumn('Primary Genre') \
         .dropColumn('Film')
 
     processed_df = new_df.dataset
