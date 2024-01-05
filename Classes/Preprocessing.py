@@ -33,12 +33,12 @@ class ProcessColumns:
         self.dataset[column] = self.dataset[column].replace('-', pd.NA)
 
         if is_percentage:
+            self.dataset[column] = (self.dataset[column]).astype(str)
             self.dataset[column] = pd.to_numeric(self.dataset[column].str.rstrip('%'), errors='coerce')
         else:
             self.dataset[column] = pd.to_numeric(self.dataset[column], errors='coerce')
 
         self.dataset[column] = self.dataset[column].fillna(self.dataset[column].mean())
-        self.dataset[column] = self.dataset[column].astype(int)
 
         min_max_scaler = preprocessing.MinMaxScaler()
         self.dataset[column] = min_max_scaler.fit_transform(self.dataset[[column]])
@@ -188,7 +188,6 @@ class ProcessColumns:
 
         return self
 
-    def addBlankColumn(self, columnName):
-        self.dataset[columnName] = 0
-
+    def addBlankColumn(self, columnName, value):
+        self.dataset[columnName] = value
         return self

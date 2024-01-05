@@ -16,11 +16,11 @@ pip3 install -r ./Utils/requirements.txt
 ## <u>Step 3</u>:<br>Run the program in either Normal or DEMO mode.
 * Normal Mode (Full Dataset)
 ```bash
-python ./main.py
+python ./main.py -alg SELECT_ALGORITHM
 ```
 * DEMO Mode (Sample) 
 ```bash
-python ./main.py -demo NUM_OF_ROWS
+python ./main.py -demo NUM_OF_ROWS -alg SELECT_ALGORITHM
 ```
 
 ## <u>Step 4</u>:<br>View the results.
