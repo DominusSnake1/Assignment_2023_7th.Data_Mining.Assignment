@@ -10,7 +10,7 @@ conda activate py39
 
 ## <u>Step 2</u>:<br>Install the required packages.
 ```bash
-pip3 install -r ./Utils/requirements.txt
+pip3 install -r ./Other/requirements.txt
 ```
 
 ## <u>Step 3</u>:<br>Run the program in either Normal or DEMO mode.
@@ -23,7 +23,7 @@ python ./main.py -alg SELECT_ALGORITHM
 python ./main.py -demo NUM_OF_ROWS -alg SELECT_ALGORITHM
 ```
 
-## <u>Step 4</u>:<br>View the results.
+## <u>Step 4</u>:<br>View the results of a test.
 1. <u>KNeighborsClassifier (3 Neighbors)</u>:<br>
 Accuracy: 0.98<br>
 Cross-Validation Accuracy: 0.9464870360955769<br>

@@ -1,4 +1,14 @@
 import sys
+from Classes.Dataset import Dataset
+
+
+def startup():
+    demo, sample = mode_selector()
+
+    if demo:
+        Dataset().createDEMO(sample)
+        return sample, Dataset(f"Data/DEMO_{sample}.xlsx")
+    return None, Dataset()
 
 
 def mode_selector():

@@ -1,7 +1,7 @@
 import pandas as pd
-from Utils.Utils import algorithm_selector
-from sklearn.metrics import accuracy_score, classification_report
+from Other.Utils import algorithm_selector
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import accuracy_score, classification_report
 
 
 class OscarWinnerModel:
