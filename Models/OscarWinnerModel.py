@@ -52,7 +52,7 @@ class OscarWinnerModel:
         # Classification Report
         print('Classification Report:\n', classification_report(y_test, y_pred, zero_division=1))
 
-        cv_accuracy = cross_val_score(model, X_train, y_train, cv=5, scoring='accuracy')
+        cv_accuracy = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_macro')
         print(f'Cross-Validation Accuracy: {cv_accuracy.mean()}')
 
         num_winners = sum(1 if x == 1 else 0 for x in y_pred)
