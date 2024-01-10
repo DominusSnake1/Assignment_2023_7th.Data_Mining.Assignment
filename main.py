@@ -1,5 +1,5 @@
+from Classes.Preprocessing import processTrainSet, processTestSet
 from Models.OscarWinnerModel import OscarWinnerModel
-from Classes.Preprocessing import ProcessColumns
 from Other import Utils
 import pandas as pd
 import os
@@ -11,7 +11,7 @@ def main():
 
     # Process the Train Dataset.
     if not os.path.exists('Data/movies_train.xlsx'):
-        processTrainSet()
+        processTrainSet(dataset)
 
     # If a demo file was created, remove it.
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
