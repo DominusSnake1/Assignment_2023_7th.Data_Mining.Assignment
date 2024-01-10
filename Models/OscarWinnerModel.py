@@ -19,18 +19,19 @@ class OscarWinnerModel:
         y_test = self.test_df['Oscar Winners']
 
         # Train the model
-        model = algorithm_selector()
-
-        if model == 'LR':
+        model = None
+        algorithm = algorithm_selector()
+        
+        if algorithm == 'LR':
             from sklearn.linear_model import LogisticRegression
             model = LogisticRegression(max_iter=1500)
-        elif model == 'DCT':
+        elif algorithm == 'DCT':
             from sklearn.tree import DecisionTreeClassifier
             model = DecisionTreeClassifier()
-        elif model == 'RFC':
+        elif algorithm == 'RFC':
             from sklearn.ensemble import RandomForestClassifier
             model = RandomForestClassifier()
-        elif model == 'KNN':
+        elif algorithm == 'KNN':
             from sklearn.neighbors import KNeighborsClassifier
             model = KNeighborsClassifier(n_neighbors=3)
 
