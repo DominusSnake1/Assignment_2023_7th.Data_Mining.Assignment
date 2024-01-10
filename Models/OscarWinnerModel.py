@@ -1,7 +1,7 @@
-import pandas as pd
-from Other.Utils import algorithm_selector
-from sklearn.model_selection import cross_val_score
 from sklearn.metrics import accuracy_score, classification_report
+from sklearn.model_selection import cross_val_score
+from Other.Utils import algorithm_selector
+import pandas as pd
 
 
 class OscarWinnerModel:
@@ -21,7 +21,7 @@ class OscarWinnerModel:
         # Train the model
         model = None
         algorithm = algorithm_selector()
-        
+
         if algorithm == 'LR':
             from sklearn.linear_model import LogisticRegression
             model = LogisticRegression(max_iter=1500)

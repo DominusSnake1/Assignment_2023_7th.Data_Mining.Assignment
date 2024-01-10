@@ -1,8 +1,8 @@
-import os
-import pandas as pd
-from Other import Utils
-from Classes.Preprocessing import ProcessColumns
 from Models.OscarWinnerModel import OscarWinnerModel
+from Classes.Preprocessing import ProcessColumns
+from Other import Utils
+import pandas as pd
+import os
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
 
     # Process the Train Dataset.
     if not os.path.exists('Data/movies_train.xlsx'):
-        ProcessColumns.processTrainSet(dataset)
+        processTrainSet()
 
     # If a demo file was created, remove it.
     if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
@@ -19,7 +19,7 @@ def main():
 
     # Process the Test Dataset.
     if not os.path.exists('Data/movies_test.xlsx'):
-        ProcessColumns.processTestSet()
+        processTestSet()
 
     train_df = pd.read_excel('Data/movies_train.xlsx')
     test_df = pd.read_excel('Data/movies_test.xlsx')

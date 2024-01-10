@@ -1,45 +1,49 @@
-import sys
 from Classes.Dataset import Dataset
+import sys
 
 
 def startup():
-    demo, sample = mode_selector()
-
-    if demo:
+    if user_wants_demo():
+        sample = demo_row_selector()
         Dataset().createDEMO(sample)
         return sample, Dataset(f"Data/DEMO_{sample}.xlsx")
+
     return None, Dataset()
 
 
-def mode_selector():
+def user_wants_demo():
     args = sys.argv[1:]
 
-    if args[0] == '-demo':
-        if (args[1] == 'NUM_OF_ROWS') or (int(args[1]) <= 0):
-            raise Exception('Please provide a positive number of rows.')
-        return True, int(args[1])
-    return False, -1
+    if len(args) <= 2:
+        return False
+
+    if args[2] != '-demo':
+        raise Exception("In order to use a demo of the dataset, you must use '-demo' after selecting an algorithm.")
+
+    return True
+
+
+def demo_row_selector():
+    args = sys.argv[1:]
+
+    if (len(args) < 4) or (args[3] == 'NUM_OF_ROWS') or (int(args[3]) <= 0):
+        raise Exception('Please provide a positive number of rows.')
+
+    return int(args[3])
 
 
 def algorithm_selector():
-    def exception():
+    args = sys.argv[1:]
+    algoriths = ['LR', 'DTC', 'RFC', 'KNN']
+
+    if (len(args) < 1) or (args[0] != '-alg'):
+        raise Exception("In order to select an algorithm, you must use '-alg' after ./main.py.")
+
+    if (len(args) < 2) or (args[1] == 'SELECT_ALGORITHM') or (args[1] not in algoriths):
         raise Exception('Please choose an algorithm from the list:\n'
                         '1. Logistic Regression [LR]\n'
                         '2. DecisionTreeClassifier [DTC]\n'
                         '3. RandomForestClassifier [RFC]\n'
                         '4. KNeighborsClassifier [KNN]\n')
 
-    args = sys.argv[1:]
-
-    algoriths = ['LR', 'DTC', 'RFC', 'KNN']
-
-    if args[0] == '-demo' and args[2] == '-alg':
-        if args[3] == 'SELECT_ALGORITHM' or args[3] not in algoriths:
-            exception()
-        return args[3]
-
-    if args[0] == '-alg':
-        if args[1] == 'SELECT_ALGORITHM' or (args[1] not in algoriths):
-            exception()
-
-        return args[1]
+    return args[1]

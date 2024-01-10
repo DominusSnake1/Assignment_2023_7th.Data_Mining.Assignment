@@ -20,7 +20,7 @@ python ./main.py -alg SELECT_ALGORITHM
 ```
 * DEMO Mode (Sample) 
 ```bash
-python ./main.py -demo NUM_OF_ROWS -alg SELECT_ALGORITHM
+python ./main.py -alg SELECT_ALGORITHM -demo NUM_OF_ROWS
 ```
 
 ## <u>Step 4</u>:<br>View the results of a test.

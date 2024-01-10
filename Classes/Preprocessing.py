@@ -1,10 +1,134 @@
-import os
-import ast
-import time
-import imdb
-import socket
-import pandas as pd
 from sklearn import preprocessing
+import pandas as pd
+import socket
+import imdb
+import time
+import ast
+import os
+
+
+def processTestSet():
+    """
+    Processes the test dataset "movies_test _anon_sample.xlsx" into the processed Test Set "movies_test.xlsx"
+
+    :param test_loc: The location of the Test Dataset.
+    """
+    from Classes.Dataset import Dataset
+
+    df = Dataset("Data/movies_test _anon.xlsx")
+    pc = ProcessColumns(df)
+
+    new_df = pc.addBlankColumn('Oscar Winners', 0) \
+        .processReleaseDate() \
+        .processPrimaryGenre() \
+        .processOneHotEncoder('Script Type', "SType") \
+        .processOneHotEncoder('Primary Genre', "Genre") \
+        .processMinMaxScaler('Rotten Tomatoes  critics') \
+        .processMinMaxScaler('Rotten Tomatoes Audience ') \
+        .processMinMaxScaler('Metacritic  critics') \
+        .processMinMaxScaler('Metacritic Audience ') \
+        .processMinMaxScaler('Average critics ') \
+        .processMinMaxScaler('Average audience ') \
+        .processMinMaxScaler('IMDb Rating') \
+        .processMinMaxScaler('Opening weekend ($million)') \
+        .processMinMaxScaler('Domestic gross ($million)') \
+        .processMinMaxScaler('Foreign Gross ($million)') \
+        .processMinMaxScaler('Worldwide Gross ($million)') \
+        .processMinMaxScaler('Budget ($million)') \
+        .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
+        .processRatingDeviance('IMDB vs RT disparity',
+                               'IMDb Rating',
+                               'Rotten Tomatoes Audience ') \
+        .processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
+                               'Rotten Tomatoes  critics',
+                               'Metacritic  critics') \
+        .processRatingDeviance('Audience vs Critics deviance ',
+                               'Average audience ',
+                               'Average critics ') \
+        .dropColumn('Distributor') \
+        .dropColumn('Opening Weekend') \
+        .dropColumn('Domestic Gross') \
+        .dropColumn('Foreign Gross') \
+        .dropColumn('Worldwide Gross') \
+        .dropColumn('Genre') \
+        .dropColumn('Release Date (US)') \
+        .dropColumn('Script Type') \
+        .dropColumn('Primary Genre') \
+        .dropColumn('Film')
+
+    processed_df = new_df.dataset
+
+    # Save the processed dataset to a new Excel file.
+    processed_df.to_excel('Data/movies_test.xlsx', index=False)
+    print("Processed Dataframe (movies_test) is now created!\n")
+
+
+def processTrainSet(dataframe):
+    """
+    Processes the original dataset "movies.xlsx" into the processed Train Set "movies_train.xlsx"
+
+    :param dataframe: Dataset object to be preprocessed.
+    """
+    # Initialize ProcessColumns object for further processing.
+    pc = ProcessColumns(dataframe)
+
+    # Generate IMDb data if not already present.
+    if not os.path.exists('Data/imdb_data.xlsx'):
+        pc.generateIMDbData()
+
+    # Perform various data processing steps.
+    new_df = pc.addBlankColumn('ID', 0) \
+        .processIMDbRating() \
+        .processOscarWinner() \
+        .processReleaseDate() \
+        .processPrimaryGenre() \
+        .processOneHotEncoder('Script Type', "SType") \
+        .addBlankColumn('SType_based on a true story, remake', False) \
+        .addBlankColumn('SType_semi-sequel', False) \
+        .processOneHotEncoder('Primary Genre', "Genre") \
+        .processMinMaxScaler('Rotten Tomatoes  critics') \
+        .processMinMaxScaler('Rotten Tomatoes Audience ') \
+        .processMinMaxScaler('Metacritic  critics') \
+        .processMinMaxScaler('Metacritic Audience ') \
+        .processMinMaxScaler('Average critics ') \
+        .processMinMaxScaler('Average audience ') \
+        .processMinMaxScaler('IMDb Rating') \
+        .processMinMaxScaler('Opening weekend ($million)') \
+        .processMinMaxScaler('Domestic gross ($million)') \
+        .processMinMaxScaler('Foreign Gross ($million)') \
+        .processMinMaxScaler('Worldwide Gross ($million)') \
+        .processMinMaxScaler('Budget ($million)') \
+        .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered', is_percentage=True) \
+        .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
+        .processRatingDeviance('IMDB vs RT disparity',
+                               'IMDb Rating',
+                               'Rotten Tomatoes Audience ') \
+        .processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
+                               'Rotten Tomatoes  critics',
+                               'Metacritic  critics') \
+        .processRatingDeviance('Audience vs Critics deviance ',
+                               'Average audience ',
+                               'Average critics ') \
+        .dropColumn('Distributor') \
+        .dropColumn('Oscar Detail') \
+        .dropColumn('Opening Weekend') \
+        .dropColumn('Domestic Gross') \
+        .dropColumn('Foreign Gross') \
+        .dropColumn('Worldwide Gross') \
+        .dropColumn('Genre') \
+        .dropColumn('Release Date (US)') \
+        .dropColumn('Script Type') \
+        .dropColumn('Primary Genre') \
+        .dropColumn('Film')
+
+    processed_df = new_df.dataset
+
+    # Save the processed dataset to a new Excel file.
+    processed_df.to_excel('Data/movies_train.xlsx', index=False)
+    print("Processed Dataframe (movies_test) is now created!\n")
 
 
 class ProcessColumns:
@@ -192,125 +316,3 @@ class ProcessColumns:
     def addBlankColumn(self, columnName, value):
         self.dataset[columnName] = value
         return self
-
-    def processTrainSet(dataframe):
-        """
-        Processes the original dataset "movies.xlsx" into the processed Train Set "movies_train.xlsx"
-
-        :param df: Dataset object to be preprocessed.
-        """
-        # Initialize ProcessColumns object for further processing.
-        pc = ProcessColumns(dataframe)
-
-        # Generate IMDb data if not already present.
-        if not os.path.exists('Data/imdb_data.xlsx'):
-            pc.generateIMDbData()
-
-        # Perform various data processing steps.
-        new_df = pc.addBlankColumn('ID', 0) \
-            .processIMDbRating() \
-            .processOscarWinner() \
-            .processReleaseDate() \
-            .processPrimaryGenre() \
-            .processOneHotEncoder('Script Type', "SType") \
-            .addBlankColumn('SType_based on a true story, remake', False) \
-            .addBlankColumn('SType_semi-sequel', False) \
-            .processOneHotEncoder('Primary Genre', "Genre") \
-            .processMinMaxScaler('Rotten Tomatoes  critics') \
-            .processMinMaxScaler('Rotten Tomatoes Audience ') \
-            .processMinMaxScaler('Metacritic  critics') \
-            .processMinMaxScaler('Metacritic Audience ') \
-            .processMinMaxScaler('Average critics ') \
-            .processMinMaxScaler('Average audience ') \
-            .processMinMaxScaler('IMDb Rating') \
-            .processMinMaxScaler('Opening weekend ($million)') \
-            .processMinMaxScaler('Domestic gross ($million)') \
-            .processMinMaxScaler('Foreign Gross ($million)') \
-            .processMinMaxScaler('Worldwide Gross ($million)') \
-            .processMinMaxScaler('Budget ($million)') \
-            .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
-            .processMinMaxScaler(' Budget recovered', is_percentage=True) \
-            .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
-            .processRatingDeviance('IMDB vs RT disparity',
-                                   'IMDb Rating',
-                                   'Rotten Tomatoes Audience ') \
-            .processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
-                                   'Rotten Tomatoes  critics',
-                                   'Metacritic  critics') \
-            .processRatingDeviance('Audience vs Critics deviance ',
-                                   'Average audience ',
-                                   'Average critics ') \
-            .dropColumn('Distributor') \
-            .dropColumn('Oscar Detail') \
-            .dropColumn('Opening Weekend') \
-            .dropColumn('Domestic Gross') \
-            .dropColumn('Foreign Gross') \
-            .dropColumn('Worldwide Gross') \
-            .dropColumn('Genre') \
-            .dropColumn('Release Date (US)') \
-            .dropColumn('Script Type') \
-            .dropColumn('Primary Genre') \
-            .dropColumn('Film')
-
-        processed_df = new_df.dataset
-
-        # Save the processed dataset to a new Excel file.
-        processed_df.to_excel('Data/movies_train.xlsx', index=False)
-        print("Processed Dataframe (movies_test) is now created!\n")
-
-    def processTestSet():
-        """
-        Processes the test dataset "movies_test _anon_sample.xlsx" into the processed Test Set "movies_test.xlsx"
-
-        :param test_loc: The location of the Test Dataset.
-        """
-        from Classes.Dataset import Dataset
-
-        df = Dataset("Data/movies_test _anon.xlsx")
-        pc = ProcessColumns(df)
-
-        new_df = pc.addBlankColumn('Oscar Winners', 0) \
-            .processReleaseDate() \
-            .processPrimaryGenre() \
-            .processOneHotEncoder('Script Type', "SType") \
-            .processOneHotEncoder('Primary Genre', "Genre") \
-            .processMinMaxScaler('Rotten Tomatoes  critics') \
-            .processMinMaxScaler('Rotten Tomatoes Audience ') \
-            .processMinMaxScaler('Metacritic  critics') \
-            .processMinMaxScaler('Metacritic Audience ') \
-            .processMinMaxScaler('Average critics ') \
-            .processMinMaxScaler('Average audience ') \
-            .processMinMaxScaler('IMDb Rating') \
-            .processMinMaxScaler('Opening weekend ($million)') \
-            .processMinMaxScaler('Domestic gross ($million)') \
-            .processMinMaxScaler('Foreign Gross ($million)') \
-            .processMinMaxScaler('Worldwide Gross ($million)') \
-            .processMinMaxScaler('Budget ($million)') \
-            .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
-            .processMinMaxScaler(' Budget recovered', is_percentage=True) \
-            .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
-            .processRatingDeviance('IMDB vs RT disparity',
-                                   'IMDb Rating',
-                                   'Rotten Tomatoes Audience ') \
-            .processRatingDeviance('Rotten Tomatoes vs Metacritic  deviance',
-                                   'Rotten Tomatoes  critics',
-                                   'Metacritic  critics') \
-            .processRatingDeviance('Audience vs Critics deviance ',
-                                   'Average audience ',
-                                   'Average critics ') \
-            .dropColumn('Distributor') \
-            .dropColumn('Opening Weekend') \
-            .dropColumn('Domestic Gross') \
-            .dropColumn('Foreign Gross') \
-            .dropColumn('Worldwide Gross') \
-            .dropColumn('Genre') \
-            .dropColumn('Release Date (US)') \
-            .dropColumn('Script Type') \
-            .dropColumn('Primary Genre') \
-            .dropColumn('Film')
-
-        processed_df = new_df.dataset
-
-        # Save the processed dataset to a new Excel file.
-        processed_df.to_excel('Data/movies_test.xlsx', index=False)
-        print("Processed Dataframe (movies_test) is now created!\n")
