@@ -10,8 +10,6 @@ import os
 def processTestSet():
     """
     Processes the test dataset "movies_test _anon_sample.xlsx" into the processed Test Set "movies_test.xlsx"
-
-    :param test_loc: The location of the Test Dataset.
     """
     from Classes.Dataset import Dataset
 
