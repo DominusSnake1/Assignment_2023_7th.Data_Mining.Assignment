@@ -65,8 +65,8 @@ def algorithm_selector():
     if (len(args) < 2) or (args[1] == 'SELECT_ALGORITHM') or (args[1] not in algoriths):
         raise Exception('Please choose an algorithm from the list:\n'
                         '1. Logistic Regression [LR]\n'
-                        '2. DecisionTreeClassifier [DTC]\n'
-                        '3. RandomForestClassifier [RFC]\n'
-                        '4. KNeighborsClassifier [KNN]\n')
+                        '2. Decision Tree Classifier [DTC]\n'
+                        '3. Random Forest Classifier [RFC]\n'
+                        '4. KNeighbors Classifier [KNN]\n')
 
     return args[1]
