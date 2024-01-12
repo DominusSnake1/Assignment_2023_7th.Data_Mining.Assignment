@@ -5,11 +5,28 @@ import pandas as pd
 
 
 class OscarWinnerModel:
+    """
+        The class representing the Oscar Winner prediction model.
+
+        :param train_df: The training dataset.
+        :param test_df: The testing dataset.
+    """
     def __init__(self, train_df, test_df):
+        """
+            The method initializes the OscarWinnerModel instance.
+
+            :param train_df: The training dataset.
+            :param test_df: The testing dataset.
+        """
         self.train_df = train_df
         self.test_df = test_df
 
     def train_test(self):
+        """
+            The method trains the model and performs predictions on the test set.\n
+            It uses the selected algorithm to train the model, make predictions and to evaluate performance using accuracy, classification report,
+            cross-validation accuracy, and the number of predicted winners.
+         """
         # Extract features and target variable from the training set
         X_train = self.train_df[self.test_df.columns].drop('Oscar Winners', axis=1)
         y_train = self.train_df['Oscar Winners']

@@ -2,20 +2,23 @@ import pandas as pd
 
 
 class Dataset(pd.DataFrame):
+    """
+        A Dataset class using the pandas DataFrame for handling movie data.
+    """
     def __init__(self, dataframe='Data/movies.xlsx'):
         """
-        Constructor method to initialize the Dataset class.
+            This is a constructor method to initialize the Dataset class.
 
-        :param dataframe: Path to the Excel file containing movie data.
-        If nothing is given as a path, it will default to the `movies.xlsx`.
-        """
+            :param dataframe: Path to the Excel file containing movie data.
+            If nothing is given as a path, it will default to the \'movies.xlsx\'.
+         """
         super().__init__(pd.read_excel(dataframe))
 
     def createDEMO(self, X):
         """
-        Create a sample dataset (DEMO) with a specified number of rows and save it to a new Excel file.
+            Creates a sample dataset (DEMO) with a specified number of rows and saves it to a new Excel file.
 
-        :param X: Number of rows for the sample dataset.
+            :param X: Number of rows for the sample dataset.
         """
         DEMO = self.sample(X).copy()
         DEMO.to_excel(f'Data/DEMO_{X}.xlsx', index=False)

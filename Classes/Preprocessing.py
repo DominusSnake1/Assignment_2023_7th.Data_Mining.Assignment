@@ -9,7 +9,10 @@ import os
 
 def processTestSet():
     """
-    Processes the test dataset "movies_test _anon_sample.xlsx" into the processed Test Set "movies_test.xlsx"
+    The method reads the test dataset, performs various preprocessing steps, and saves the resulting DataFrame to a new Excel file.\n
+    The preprocessing steps include adding columns, applying One-Hot Encoding, Min-Max Scaling, IMDb rating processing,
+    and deviance calculations.\n
+    Additionally, certain columns are dropped from the DataFrame.
     """
     from Classes.Dataset import Dataset
 
@@ -65,9 +68,14 @@ def processTestSet():
 
 def processTrainSet(dataframe):
     """
-    Processes the original dataset "movies.xlsx" into the processed Train Set "movies_train.xlsx"
+        The method reads the original dataset, initializes a ProcessColumns object for further processing, generates IMDb data if not
+        already present, and performs various data processing steps.\n
+        The processed DataFrame is saved to a new Excel file.\n
+        The preprocessing steps include adding columns, applying One-Hot Encoding, Min-Max Scaling, IMDb rating processing,
+        and deviance calculations.\n
+        Additionally, certain columns are dropped from the DataFrame.
 
-    :param dataframe: Dataset object to be preprocessed.
+        :param dataframe: Dataset object to be preprocessed.
     """
     # Initialize ProcessColumns object for further processing.
     pc = ProcessColumns(dataframe)
@@ -130,15 +138,26 @@ def processTrainSet(dataframe):
 
 
 class ProcessColumns:
+    """
+        This class is used for processing columns in a dataset.
+
+        :param dataset: The dataset to be processed.
+    """
     def __init__(self, dataset):
+        """
+             The method initializes the ProcessColumns instance.
+
+             :param dataset: The dataset to be processed.
+         """
         self.dataset = dataset
 
     def processOneHotEncoder(self, column, _prefix):
         """
-        Apply One-Hot Encoding to the specified column.
+        The method applies One-Hot Encoding to the specified column.
 
         :param _prefix: Adds a prefix into the column name.
         :param column: Column name to apply One-Hot Encoding.
+        :return: Processed dataset with One-Hot Encoding.
         """
         df_encoded = pd.get_dummies(self.dataset[column], prefix=_prefix)
 
@@ -148,10 +167,11 @@ class ProcessColumns:
 
     def processMinMaxScaler(self, column, is_percentage=False):
         """
-        Apply Min-Max Scaling to the specified column.
+        The method applies Min-Max Scaling to the specified column.
 
         :param column: Column name to apply Min-Max Scaling.
         :param is_percentage: Flag indicating if the data is in percentage format (Defaults at `False`).
+        :return: Processed dataset with Min-Max Scaling.
         """
         self.dataset[column] = self.dataset[column].replace('-', pd.NA)
 
@@ -171,7 +191,9 @@ class ProcessColumns:
 
     def processOscarWinner(self):
         """
-         Map 'Oscar Winners' column to binary values based on the presence of 'Oscar winner' in the data.
+         The method maps 'Oscar Winners' column to binary values based on the presence of 'Oscar winner' in the data.
+
+         :return: Processed dataset with mapped 'Oscar Winners' column.
          """
         def __OscarWinner_map_helper(x):
             if x in ["Oscar winner", "Oscar Winner"]:
@@ -182,14 +204,19 @@ class ProcessColumns:
 
         return self
 
-    def generateIMDbData(self, batch_size=100, final_output_path='Data/imdb_data.xlsx'):
+    def generateIMDbData(self, final_output_path='Data/imdb_data.xlsx'):
         """
-        Retrieve IMDb data for movies in batches with missing IMDb ratings and save the data to a final Excel file.
+        The method retrieves IMDb data for movies in batches with missing IMDb ratings and save the data to a final Excel file.
 
-        :param batch_size: The number of rows to process in each batch.
         :param final_output_path: The path for the final Excel file.
         """
         def __get_imdb_data(movie_title):
+            """
+                The method retrieves IMDb data for a given movie title using the IMDb API.
+
+                :param movie_title: Title of the movie for which IMDb data is to be retrieved.
+                :return: IMDb data as a dictionary containing information such as title, rating, IMDb ID, and genres or None if the data retrieval is unsuccessful.
+            """
             api = imdb.Cinemagoer()
             movie_title = str(movie_title)
             retries = 0
@@ -215,6 +242,7 @@ class ProcessColumns:
         total_rows = self.dataset.shape[0]
         imdb_data_batches = []
         included_columns = ['localized title', 'rating', 'imdbID', 'genres']
+        batch_size = 100
 
         for start_index in range(0, total_rows, batch_size):
             end_index = min(start_index + batch_size, total_rows)
@@ -250,7 +278,9 @@ class ProcessColumns:
 
     def processIMDbRating(self):
         """
-        Process IMDb ratings by filling missing values and scaling.
+        The method processes IMDb ratings by filling missing values and scaling.
+
+        :return: Processed dataset with IMDb ratings.
         """
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
         imdb_data['rating'] = imdb_data['rating'].fillna(imdb_data['rating'].mean())
@@ -261,11 +291,12 @@ class ProcessColumns:
 
     def processRatingDeviance(self, target, column1, column2):
         """
-        Calculate and create a new column for the deviance between two rating columns.
+        The method calculates and creates a new column for the deviance between two rating columns.
 
         :param target: New column name for storing the deviance.
         :param column1: First rating column.
         :param column2: Second rating column.
+        :return: Processed dataset with the new deviance column.
         """
         self.dataset[target] = self.dataset[column1] - self.dataset[column2]
 
@@ -273,7 +304,9 @@ class ProcessColumns:
 
     def processReleaseDate(self):
         """
-        Process the 'Release Date (US)' column by converting it to seasons and applying One-Hot Encoding.
+        The method processes the 'Release Date (US)' column by converting it to seasons and applying One-Hot Encoding.
+
+        :return: Processed dataset with One-Hot Encoded 'Release Date (US)' column.
         """
         def __get_season(month):
             if 3 <= month <= 5:
@@ -295,6 +328,11 @@ class ProcessColumns:
         return self
 
     def processPrimaryGenre(self):
+        """
+            The method processes the 'Primary Genre' column by extracting the primary genre from IMDb data.
+
+            :return: Processed dataset with the new 'Primary Genre' column.
+        """
         imdb_data = pd.read_excel('Data/imdb_data.xlsx')
         self.dataset['Primary Genre'] = imdb_data['genres'].apply(lambda x: ast.literal_eval(x)[0] if pd.notna(x) else None)
 
@@ -302,9 +340,10 @@ class ProcessColumns:
 
     def dropColumn(self, column):
         """
-        Drop a specified column from the DataFrame.
+        The method drops a specified column from the DataFrame.
 
         :param column: Name of the column to drop.
+        :return: Processed dataset with the specified column dropped.
         """
         self.dataset.drop(column, axis=1, inplace=True)
         print(f"'{column}' is dropped from the dataframe.")
@@ -312,5 +351,12 @@ class ProcessColumns:
         return self
 
     def addBlankColumn(self, columnName, value):
+        """
+            The method adds a new blank column with a specified name and initial value.
+
+            :param columnName: Name of the new column.
+            :param value: Initial value for the new column.
+            :return: Processed dataset with the new blank column.
+        """
         self.dataset[columnName] = value
         return self
