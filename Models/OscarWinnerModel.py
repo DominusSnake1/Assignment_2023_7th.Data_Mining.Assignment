@@ -42,7 +42,7 @@ class OscarWinnerModel:
         if algorithm == 'LR':
             from sklearn.linear_model import LogisticRegression
             model = LogisticRegression(max_iter=1500)
-        elif algorithm == 'DCT':
+        elif algorithm == 'DTC':
             from sklearn.tree import DecisionTreeClassifier
             model = DecisionTreeClassifier()
         elif algorithm == 'RFC':
