@@ -39,6 +39,7 @@ def processTestSet():
         .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
         .processMinMaxScaler(' Budget recovered', is_percentage=True) \
         .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
+        .processMinMaxScaler('Year') \
         .processRatingDeviance('IMDB vs RT disparity',
                                'IMDb Rating',
                                'Rotten Tomatoes Audience ') \
@@ -109,6 +110,7 @@ def processTrainSet(dataframe):
         .processMinMaxScaler(' of Gross earned abroad', is_percentage=True) \
         .processMinMaxScaler(' Budget recovered', is_percentage=True) \
         .processMinMaxScaler(' Budget recovered opening weekend', is_percentage=True) \
+        .processMinMaxScaler('Year') \
         .processRatingDeviance('IMDB vs RT disparity',
                                'IMDb Rating',
                                'Rotten Tomatoes Audience ') \

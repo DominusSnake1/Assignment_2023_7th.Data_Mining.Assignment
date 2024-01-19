@@ -1,5 +1,6 @@
 from Classes.Preprocessing import processTrainSet, processTestSet
 from Models.OscarWinnerModel import OscarWinnerModel
+from Classes.Clustering import clustering
 from Other import Utils
 import pandas as pd
 import os
@@ -29,6 +30,8 @@ def main():
 
     model = OscarWinnerModel(train_df, test_df)
     model.train_test()
+
+    clustering(train_df)
 
 
 if __name__ == '__main__':
