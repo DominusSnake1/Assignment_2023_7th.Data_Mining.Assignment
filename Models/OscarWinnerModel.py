@@ -1,6 +1,7 @@
 from sklearn.metrics import accuracy_score, classification_report, f1_score
 from sklearn.model_selection import cross_val_score
 from Other.Utils import algorithm_selector
+from icecream import ic
 import pandas as pd
 import numpy as np
 
@@ -12,6 +13,7 @@ class OscarWinnerModel:
         :param train_df: The training dataset.
         :param test_df: The testing dataset.
     """
+
     def __init__(self, train_df, test_df):
         """
             The method initializes the OscarWinnerModel instance.
@@ -57,8 +59,10 @@ class OscarWinnerModel:
 
         # Get the top 11 predictions with a higher chance of being an Oscar Winner.
         y_proba = model.predict_proba(X_test)
-        top_11_predictions = y_proba[:, 1].argsort()[-11:][::-1]
-        y_pred = np.zeros_like(y_proba[:, 1])
+        winner_probabilities = y_proba[:, 1]
+
+        top_11_predictions = winner_probabilities.argsort()[-11:]
+        y_pred = np.zeros_like(winner_probabilities, dtype=int)
         y_pred[top_11_predictions] = 1
 
         # Create the new Dataframe with the predictions.
@@ -74,8 +78,11 @@ class OscarWinnerModel:
 
         print('Classification Report:\n', classification_report(y_test, y_pred, zero_division=1))
 
-        cv_accuracy = cross_val_score(model, X_train, y_train, cv=5, scoring='f1_macro')
+        cv_accuracy = cross_val_score(model, X_train, y_train, cv=5)
         print(f'Cross-Validation Accuracy: {cv_accuracy.mean()}')
 
         num_winners = sum(1 if x == 1 else 0 for x in y_pred)
         print(f"Number of 'Predicted' Winners: {num_winners}")
+
+        f1 = f1_score(y_test, y_pred)
+        print(f'F1-Score: {f1}')
