@@ -1,20 +1,7 @@
 from Other.Utils import algorithm_selector
+from Other.Metrics import statistics
 import pandas as pd
 import numpy as np
-
-
-def statistics(y_test, y_pred):
-    from sklearn.metrics import accuracy_score, classification_report, f1_score
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'Accuracy: {accuracy}')
-
-    print('Classification Report:\n', classification_report(y_test, y_pred, zero_division=1))
-
-    num_winners = sum(1 if x == 1 else 0 for x in y_pred)
-    print(f"Number of 'Predicted' Winners: {num_winners}")
-
-    f1 = f1_score(y_test, y_pred)
-    print(f'F1-Score: {f1}')
 
 
 class OscarWinnerModel:
@@ -43,7 +30,7 @@ class OscarWinnerModel:
         self.X_test = test_df[self.X_train.columns]
         self.y_test = test_df['Oscar Winners']
 
-    def train_test(self):
+    def train(self):
         """
             The method trains the model and performs predictions on the test set.\n
             It uses the selected algorithm to train the model, make predictions and to evaluate performance using accuracy, classification report,
@@ -83,6 +70,3 @@ class OscarWinnerModel:
 
         # Save the DataFrame back to the Excel file with predictions
         pred_df.to_csv('Data/predictions.csv', index=False)
-
-        # Statistics
-        statistics(self.y_test, y_pred)

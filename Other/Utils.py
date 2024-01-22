@@ -1,5 +1,25 @@
 from Classes.Dataset import Dataset
 import sys
+import os
+
+
+def check_if_files_exist(dataset, demo_num):
+    # Process the Train Dataset.
+    if not os.path.exists('Data/movies_train.xlsx'):
+        from Classes.Preprocessing import processTrainSet
+        processTrainSet(dataset)
+
+    # If a demo file was created, remove it.
+    if os.path.exists(f"Data/DEMO_{demo_num}.xlsx"):
+        os.remove(f"Data/DEMO_{demo_num}.xlsx")
+
+    # Process the Test Dataset.
+    if not os.path.exists('Data/movies_test.xlsx'):
+        from Classes.Preprocessing import processTestSet
+        processTestSet()
+
+    if os.path.exists("Data/predictions.csv"):
+        os.remove("Data/predictions.csv")
 
 
 def startup():

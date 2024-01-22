@@ -1,9 +1,5 @@
 scikit-learn
 cinemagoer
 matplotlib
-requests
-icecream
-seaborn
 pandas
-joblib
 numpy
