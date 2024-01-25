@@ -18,7 +18,9 @@ pip3 install -r ./Other/requirements.txt
 ```bash
 python ./main.py -alg SELECT_ALGORITHM
 ```
+(Example: `-alg RFC`)
 * DEMO Mode (Sample) 
 ```bash
 python ./main.py -alg SELECT_ALGORITHM -demo NUM_OF_ROWS
 ```
+(Example: `-alg RFC -demo 20`)

@@ -1,10 +1,14 @@
 from sklearn.metrics import accuracy_score, classification_report, f1_score
 from sklearn.model_selection import train_test_split
-
 from Other.Utils import algorithm_selector
 
 
 def test_training(dataset):
+    """
+    The method trains and tests machine learning models using various algorithms.
+
+    :param dataset: The dataset to be tested.
+    """
     algorithm = algorithm_selector()
 
     X = dataset.drop('Oscar Winners', axis=1)
@@ -39,6 +43,13 @@ def test_training(dataset):
 
 
 def statistics(algorithm, y_test, y_pred):
+    """
+    The method prints the evaluation statistics for the trained model.
+
+    :param algorithm: The algorithm used for training the model.
+    :param y_test: True labels.
+    :param y_pred: Predicted labels.
+    """
     print(f"Algorithm used: {algorithm}\n")
 
     accuracy = accuracy_score(y_test, y_pred)

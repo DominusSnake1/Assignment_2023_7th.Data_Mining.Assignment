@@ -5,7 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def clustering(train_df):
+def clustering(train_df) -> None:
+    """
+    The method performs clustering using KMeans, DBSCAN, and Agglomerate Clustering algorithms.
+
+    :param train_df: DataFrame containing features and labels.
+    """
     X = train_df.drop('Oscar Winners', axis=1)
     y = train_df['Oscar Winners']
 
@@ -26,7 +31,17 @@ def clustering(train_df):
     plot(title='HAC', x_axis=reduced_features, y_axis=y, clusters=2)
 
 
-def plot(title, x_axis, y_axis, clusters=None, eps=None, min_samples=None):
+def plot(title, x_axis, y_axis, clusters=None, eps=None, min_samples=None) -> None:
+    """
+    The method plots the clusters formed by the clustering algorithms.
+
+    :param title: The title of the plot.
+    :param x_axis: The features to plot on the x-axis.
+    :param y_axis: The labels for coloring the points.
+    :param clusters: Number of clusters for KMeans and Agglomerate Clustering.
+    :param eps: The maximum distance between two samples for DBSCAN.
+    :param min_samples: The number of samples in a neighborhood for DBSCAN.
+    """
     labels = None
 
     if title == 'KMEANS':
@@ -50,19 +65,37 @@ def plot(title, x_axis, y_axis, clusters=None, eps=None, min_samples=None):
     show_cluster_description(x_axis, y_axis)
 
 
-def show_avg_silhouette(x_axis, y_axis):
+def show_avg_silhouette(x_axis, y_axis) -> None:
+    """
+    The method calculates and displays the average silhouette score.
+
+    :param x_axis: The features used in clustering.
+    :param y_axis: The labels used for clustering.
+    """
     silhouette_avg = silhouette_score(x_axis, y_axis)
     print(f'Silhouette Score: {silhouette_avg}')
 
 
-def show_cluster_description(x_axis, y_axis):
+def show_cluster_description(x_axis, y_axis) -> None:
+    """
+    The method displays the cluster descriptions.
+
+    :param x_axis: The features used in clustering.
+    :param y_axis: The labels used for clustering.
+    """
     features_labeled = pd.DataFrame({'Feature 1': x_axis[:, 0], 'Feature 2': x_axis[:, 1], 'Cluster': y_axis})
 
     cluster_descriptions = features_labeled.groupby('Cluster').mean()
-    print(f"Cluster Desctription:\n{cluster_descriptions}")
+    print(f"Cluster Description:\n{cluster_descriptions}")
 
 
-def compare_cluster_labels(first_list, second_list):
+def compare_cluster_labels(first_list, second_list) -> None:
+    """
+    The method compares the cluster labels with the ground truth labels.
+
+    :param first_list: Ground truth labels.
+    :param second_list: Cluster labels.
+    """
     count_dict = {}
 
     for line, number in zip(first_list, second_list):
@@ -73,7 +106,12 @@ def compare_cluster_labels(first_list, second_list):
         print(f"Cluster: {number} has {count} occurrences of `Oscar Winners`.")
 
 
-def plot_kmeans_elbow_silhouette(features):
+def plot_kmeans_elbow_silhouette(features) -> None:
+    """
+    the method plots the elbow method and the silhouette score for KMeans.
+
+    :param features: The features used for clustering.
+    """
     distortions = []
     silhouette_scores = []
 
